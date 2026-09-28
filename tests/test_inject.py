@@ -38,6 +38,21 @@ class InjectTest(HookCase):
         self.assertEqual((r.returncode, r.stdout), (0, ""))
         self.assertIn("instructions.md", r.stderr)
 
+    def test_broken_config_adds_system_message(self):
+        self.config_path.write_text("{", encoding="utf-8")
+        r = self.inject()
+        self.assertEqual(r.returncode, 0, r.stderr)
+        out = json.loads(r.stdout)
+        expected = (ROOT / "instructions.md").read_text(encoding="utf-8")
+        self.assertEqual(out["hookSpecificOutput"]["additionalContext"], expected)
+        self.assertIn("prose-guard.json", out["systemMessage"])
+
+    def test_valid_config_has_no_system_message(self):
+        r = self.inject()
+        self.assertEqual(r.returncode, 0, r.stderr)
+        out = json.loads(r.stdout)
+        self.assertNotIn("systemMessage", out)
+
 
 class RunShTest(HookCase):
     def run_sh(self, script, stdin):
