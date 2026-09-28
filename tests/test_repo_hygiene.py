@@ -19,6 +19,7 @@ def repo_files():
     return [ROOT / p for p in out.decode("utf-8").split("\0") if p]
 
 
+@unittest.skipUnless((ROOT / ".git").exists(), "git checkout の外では動かない")
 class HygieneTest(unittest.TestCase):
     def test_no_personal_paths(self):
         hits = []
