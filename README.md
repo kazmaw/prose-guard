@@ -53,7 +53,7 @@ Claude Code に、読みやすい日本語の文章を書かせるプラグイ�
 
 | キー | 意味 |
 | --- | --- |
-| `watch_dirs` | 配下の `.md` をすべて検査するディレクトリ。`~` も使えます |
+| `watch_dirs` | 配下の `.md` をすべて検査するディレクトリ。絶対パスか `~` 始まりで書きます |
 | `skip_globs` | 検査しないファイルの glob。絶対パスと照合し、`*` は `/` もまたぎます |
 | `post_tools` | 送信前に検査して止める MCP ツールの名前 |
 | `replacing_tools` | `post_tools` のうち、本文を丸ごと置き換えるもの |
@@ -67,7 +67,9 @@ Claude Code に、読みやすい日本語の文章を書かせるプラグイ�
   - 会話の中で読み込んだ既存の行は、検査から外します。
   - 他の人が書いた文を理由に、差し戻さないためです。
 
-設定を読めないときは、stderr に警告を出して既定値で動きます。
+設定を読めないときや `watch_dirs` に絶対パスでも `~` 始まりでもない
+エントリがあるときは、stderr に警告を出して既定値で動きます。
+警告はセッション開始時にも表示します。
 
 ClickUp と Slack の主なツール名は次のとおりです。
 
@@ -115,11 +117,12 @@ rm ~/.claude/.prose-guard-off      # 再開する
 
 ## 更新
 
-```text
-/plugin marketplace update prose-guard
+```sh
+claude plugin marketplace update prose-guard
+claude plugin update prose-guard@prose-guard
 ```
 
-そのあと `claude plugin update prose-guard@prose-guard` を実行し、新しいセッションを始めます。
+そのあと新しいセッションを始めます。
 
 ## テスト
 
