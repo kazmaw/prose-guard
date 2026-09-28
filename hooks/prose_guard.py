@@ -158,10 +158,30 @@ def _dir_forms(d):
     return forms | {f.replace(" ", "\\ ") for f in forms}
 
 
-def _mentions_target(command, cfg):
+def _effective_base(command, cwd):
+    """cd を伴うコマンドが実際に触る基準ディレクトリ。leading cd があれば反映する。"""
+    base = cwd or os.getcwd()
+    m = _LEADING_CD.match(command)
+    if m:
+        base = os.path.join(base, os.path.expanduser(m.group(1).strip("'\"").replace("\\ ", " ")))
+    return base
+
+
+def _under_watch_dir(base, cfg):
+    p = os.path.abspath(base)
+    for root in cfg["watch_dirs"]:
+        if p == root or p.startswith(root + os.sep):
+            return True
+    return False
+
+
+def _mentions_target(command, cfg, cwd=None):
     if _BASH_HINT.search(command):
         return True
-    return any(f in command for d in cfg["watch_dirs"] for f in _dir_forms(d))
+    if any(f in command for d in cfg["watch_dirs"] for f in _dir_forms(d)):
+        return True
+    # cwd が watch_dir 配下なら、コマンドに書かれた相対パスがヒットしなくても拾う
+    return _under_watch_dir(_effective_base(command, cwd), cfg)
 
 
 def bash_targets(command, cwd, cfg):
@@ -170,12 +190,9 @@ def bash_targets(command, cwd, cfg):
     実行前に呼ぶので、まだ存在しない新規ファイルも返す。
     パスを変数や glob で組み立てたコマンドは拾えない（約 8%、実測）。
     """
-    if not command or not _mentions_target(command, cfg):
+    if not command or not _mentions_target(command, cfg, cwd):
         return []
-    base = cwd or os.getcwd()
-    m = _LEADING_CD.match(command)
-    if m:
-        base = os.path.join(base, os.path.expanduser(m.group(1).strip("'\"").replace("\\ ", " ")))
+    base = _effective_base(command, cwd)
     found = set()
     tokens = [m.group(2) for m in re.finditer(r"(['\"])([^'\"\n]+?\.md)\1", command)]
     tokens += [m.group(0) for m in _PATH_TOKEN.finditer(command)]

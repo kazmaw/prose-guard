@@ -90,6 +90,11 @@ class TestBashWatchDirs(BashCase):
         self.assertEqual(post.returncode, 0, post.stderr)
         self.assertEqual(self.snapshots(), [])
 
+    def test_relative_write_when_cwd_is_watch_dir(self):
+        """コマンド文字列に watch_dirs のパスが出ていなくても、cwd が watch_dir 配下なら拾う。"""
+        post = self.run_bash("printf '%%s\\n' '- %s' > memo.md" % LONG, cwd=self.notes)
+        self.assertEqual(post.returncode, 2, post.stderr)
+
 
 class TestBashNoop(BashCase):
     def test_unrelated_command_leaves_no_snapshot(self):

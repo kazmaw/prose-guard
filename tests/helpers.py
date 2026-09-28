@@ -69,14 +69,17 @@ class HookCase(unittest.TestCase):
     def gh(self, command):
         return self.bash_hook("PreToolUse", command)
 
-    def bash_hook(self, event, command, tool_use_id="toolu_1"):
-        return self.hook({"hook_event_name": event, "tool_name": "Bash",
-                          "tool_input": {"command": command}, "tool_use_id": tool_use_id})
+    def bash_hook(self, event, command, tool_use_id="toolu_1", cwd=None):
+        payload = {"hook_event_name": event, "tool_name": "Bash",
+                  "tool_input": {"command": command}, "tool_use_id": tool_use_id}
+        if cwd is not None:
+            payload["cwd"] = str(cwd)
+        return self.hook(payload)
 
-    def run_bash(self, command, tool_use_id="toolu_1"):
+    def run_bash(self, command, tool_use_id="toolu_1", cwd=None):
         """実際の Bash と同じ順序で、実行前 hook → コマンド → 実行後 hook を回す。"""
-        pre = self.bash_hook("PreToolUse", command, tool_use_id)
+        pre = self.bash_hook("PreToolUse", command, tool_use_id, cwd=cwd)
         self.assertEqual(pre.returncode, 0, pre.stderr)
         self.assertEqual(pre.stdout, "", "PreToolUse は stdout に何も出さない")
-        subprocess.run(["sh", "-c", command], check=True, cwd=str(self.tmp), env=self.env)
-        return self.bash_hook("PostToolUse", command, tool_use_id)
+        subprocess.run(["sh", "-c", command], check=True, cwd=str(cwd or self.tmp), env=self.env)
+        return self.bash_hook("PostToolUse", command, tool_use_id, cwd=cwd)
