@@ -1,0 +1,10 @@
+{
+  "watch_dirs": ["~/Documents/ObsidianVault"],
+  "skip_globs": ["*/maps/取り込みダイジェスト.md"],
+  "post_tools": [
+    "slack_send_message",
+    "clickup_create_task_comment",
+    "clickup_update_task"
+  ],
+  "replacing_tools": ["clickup_update_task"]
+}
