@@ -80,6 +80,16 @@ class LoadConfigTest(unittest.TestCase):
         cfg, _ = self.load(watch_dirs=["", "  "])
         self.assertEqual(cfg["watch_dirs"], [])
 
+    def test_watch_dir_with_surrounding_whitespace_is_stripped(self):
+        with mock.patch.dict(os.environ, {"HOME": str(self.tmp)}):
+            cfg, _ = self.load(watch_dirs=[" ~/notes "])
+        self.assertEqual(cfg["watch_dirs"], [str(self.tmp / "notes")])
+
+    def test_relative_watch_dir_is_dropped_with_warning(self):
+        cfg, err = self.load(watch_dirs=["notes"])
+        self.assertEqual(cfg["watch_dirs"], [])
+        self.assertIn("watch_dirs", err)
+
     def test_full_mcp_name_normalized(self):
         cfg, _ = self.load(post_tools=["mcp__claude_ai_Slack__slack_send_message"],
                            replacing_tools=["mcp__x__slack_send_message"])

@@ -118,8 +118,17 @@ def load_config(path=None):
         # 空文字の watch_dirs はカレントディレクトリ全体になるので捨てる
         values[key] = [x for x in v if x.strip()]
     post = {_tool_tail(t) for t in values["post_tools"]}
+    watch_dirs = []
+    for d in values["watch_dirs"]:
+        expanded = os.path.expanduser(d.strip())
+        if not os.path.isabs(expanded):
+            sys.stderr.write(
+                "[prose-guard] 設定の watch_dirs は絶対パスか ~ 始まりにすること。"
+                "無視する: %s\n" % d)
+            continue
+        watch_dirs.append(os.path.abspath(expanded))
     return {
-        "watch_dirs": [os.path.abspath(os.path.expanduser(d)) for d in values["watch_dirs"]],
+        "watch_dirs": watch_dirs,
         "skip_globs": [os.path.expanduser(x) for x in values["skip_globs"]],
         "post_tools": post,
         "replacing_tools": {_tool_tail(t) for t in values["replacing_tools"]} & post,
