@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "prose-guard",
+  "owner": {
+    "name": "kazmaw"
+  },
+  "metadata": {
+    "description": "Claude Code に読みやすい日本語を書かせる prose-guard プラグインの配布元。"
+  },
+  "plugins": [
+    {
+      "name": "prose-guard",
+      "description": "文章ルールの注入と、行やバレットの長さを判定するリンタ hook。",
+      "source": ".",
+      "category": "productivity"
+    }
+  ]
+}
