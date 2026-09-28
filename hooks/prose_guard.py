@@ -409,10 +409,11 @@ def handle_pre_bash(payload, cfg):
     if not targets or not snap:
         return 0
     data = json.dumps({p: _read_or_none(p) for p in targets}, ensure_ascii=False)
-    os.makedirs(SNAPSHOT_DIR, exist_ok=True)
+    os.makedirs(SNAPSHOT_DIR, mode=0o700, exist_ok=True)
     _prune_snapshots()
     tmp = snap + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
         f.write(data)
     os.replace(tmp, snap)
     return 0

@@ -5,6 +5,7 @@ python や heredoc で spec・plan を直すと検査が丸ごと抜けていた
 """
 
 import os
+import stat
 import subprocess
 import unittest
 
@@ -220,6 +221,11 @@ class TestSnapshotDir(BashCase):
         self.pre_only()
         root = self.home / ".claude" / "prose-guard" / "snapshots"
         self.assertEqual(len(self.snapshots(root)), 1)
+
+    def test_snapshot_file_is_private(self):
+        self.pre_only()
+        snap = self.snapshots()[0]
+        self.assertEqual(stat.S_IMODE(snap.stat().st_mode), 0o600)
 
 
 if __name__ == "__main__":
