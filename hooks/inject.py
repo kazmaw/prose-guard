@@ -24,7 +24,7 @@ def main():
         return 0
     payload = {"hookSpecificOutput": {"hookEventName": "SessionStart",
                                       "additionalContext": text}}
-    sys.stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    sys.stdout.write(json.dumps(payload) + "\n")
     return 0
 
 

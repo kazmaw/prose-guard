@@ -85,7 +85,7 @@ _LARGE_FILE_LINES = 3000
 
 
 def emit(payload):
-    _real_stdout.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    _real_stdout.write(json.dumps(payload) + "\n")
     _real_stdout.flush()
 
 
@@ -615,7 +615,7 @@ def handle_stop(payload):
 def main():
     if os.path.exists(DISABLE_FLAG):
         return 0
-    raw = sys.stdin.read()
+    raw = sys.stdin.buffer.read().decode("utf-8", "replace")
     if not raw.strip():
         return 0
     payload = json.loads(raw)
