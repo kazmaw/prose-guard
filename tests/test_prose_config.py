@@ -18,7 +18,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "hooks"))
 
 import prose_guard as g  # noqa: E402
 
-EMPTY = {"watch_dirs": [], "skip_globs": [], "post_tools": set(), "replacing_tools": set()}
+DEFAULTS = {"watch_dirs": [], "skip_globs": [],
+            "post_tools": set(g.DEFAULT_POST_TOOLS),
+            "replacing_tools": set(g.DEFAULT_REPLACING_TOOLS)}
 
 
 class LoadConfigTest(unittest.TestCase):
@@ -41,18 +43,18 @@ class LoadConfigTest(unittest.TestCase):
 
     def test_missing_file_uses_defaults_silently(self):
         cfg, err = self.load()
-        self.assertEqual(cfg, EMPTY)
+        self.assertEqual(cfg, DEFAULTS)
         self.assertEqual(err, "")
 
     def test_broken_json_warns_and_uses_defaults(self):
         cfg, err = self.load("{")
-        self.assertEqual(cfg, EMPTY)
+        self.assertEqual(cfg, DEFAULTS)
         self.assertIn("prose-guard.json", err)
 
     def test_top_level_not_object_warns(self):
         for text in ("[]", "null"):
             cfg, err = self.load(text)
-            self.assertEqual(cfg, EMPTY, text)
+            self.assertEqual(cfg, DEFAULTS, text)
             self.assertNotEqual(err, "", text)
 
     def test_wrong_type_resets_only_that_key(self):
@@ -61,6 +63,31 @@ class LoadConfigTest(unittest.TestCase):
         self.assertEqual(cfg["post_tools"], {"slack_send_message"})
         self.assertIn("watch_dirs", err)
 
+    def test_wrong_type_post_tools_falls_back_to_defaults(self):
+        cfg, err = self.load(post_tools="slack_send_message")
+        self.assertEqual(cfg["post_tools"], set(g.DEFAULT_POST_TOOLS))
+        self.assertIn("post_tools", err)
+
+    def test_default_replacing_is_subset_of_default_post(self):
+        self.assertLessEqual(set(g.DEFAULT_REPLACING_TOOLS), set(g.DEFAULT_POST_TOOLS))
+
+    def test_explicit_empty_post_tools_disables_mcp_check(self):
+        cfg, _ = self.load(post_tools=[])
+        self.assertEqual(cfg["post_tools"], set())
+        self.assertEqual(cfg["replacing_tools"], set())
+
+    def test_custom_post_tools_replace_defaults(self):
+        cfg, _ = self.load(post_tools=["slack_send_message"])
+        self.assertEqual(cfg["post_tools"], {"slack_send_message"})
+
+    def test_omitted_replacing_uses_defaults_within_post_tools(self):
+        cfg, _ = self.load(post_tools=["clickup_update_task", "slack_send_message"])
+        self.assertEqual(cfg["replacing_tools"], {"clickup_update_task"})
+
+    def test_explicit_empty_replacing_tools(self):
+        cfg, _ = self.load(post_tools=["clickup_update_task"], replacing_tools=[])
+        self.assertEqual(cfg["replacing_tools"], set())
+
     def test_non_string_item_resets_key(self):
         cfg, err = self.load(skip_globs=["*.md", 1])
         self.assertEqual(cfg["skip_globs"], [])
@@ -68,7 +95,7 @@ class LoadConfigTest(unittest.TestCase):
 
     def test_unknown_key_is_ignored(self):
         cfg, err = self.load(unknown=1)
-        self.assertEqual(cfg, EMPTY)
+        self.assertEqual(cfg, DEFAULTS)
         self.assertEqual(err, "")
 
     def test_watch_dirs_are_expanded(self):

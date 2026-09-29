@@ -54,6 +54,29 @@ DISABLE_FLAG = os.path.expanduser("~/.claude/.prose-guard-off")
 CONFIG_PATH = os.environ.get("PROSE_GUARD_CONFIG") or os.path.expanduser(
     "~/.claude/prose-guard.json")
 CONFIG_KEYS = ("watch_dirs", "skip_globs", "post_tools", "replacing_tools")
+# 設定ファイルが無い環境（Cowork など）でも投稿前チェックを効かせるための既定値
+DEFAULT_REPLACING_TOOLS = (
+    "clickup_update_comment",
+    "clickup_update_task",
+    "clickup_update_document_page",
+)
+DEFAULT_POST_TOOLS = (
+    "clickup_create_task_comment",
+    "clickup_create_comment",
+    "clickup_send_chat_message",
+    "clickup_create_task",
+    "clickup_create_document",
+    "clickup_create_document_page",
+    "slack_send_message",
+    "slack_send_message_draft",
+    "slack_schedule_message",
+) + DEFAULT_REPLACING_TOOLS
+CONFIG_DEFAULTS = {
+    "watch_dirs": [],
+    "skip_globs": [],
+    "post_tools": list(DEFAULT_POST_TOOLS),
+    "replacing_tools": list(DEFAULT_REPLACING_TOOLS),
+}
 
 # 差し戻しの文面で示す判定基準の場所
 CRITERIA = " 判定基準は %s にある。\n" % (HERE / "prose_lint.py")
@@ -95,7 +118,7 @@ def _tool_tail(name):
 
 
 def load_config(path=None):
-    """設定ファイルを読む。読めないときも既定値（すべて空）で動かし、作業を止めない。"""
+    """設定ファイルを読む。読めないときも既定値で動かし、作業を止めない。"""
     path = path or CONFIG_PATH
     try:
         with open(path, encoding="utf-8") as f:
@@ -110,11 +133,11 @@ def load_config(path=None):
         raw = {}
     values = {}
     for key in CONFIG_KEYS:
-        v = raw.get(key, [])
+        v = raw.get(key, CONFIG_DEFAULTS[key])
         if not isinstance(v, list) or not all(isinstance(x, str) for x in v):
             sys.stderr.write("[prose-guard] 設定の %s は文字列の配列にすること。"
-                             "既定値 [] で動く\n" % key)
-            v = []
+                             "既定値で動く\n" % key)
+            v = CONFIG_DEFAULTS[key]
         # 空文字の watch_dirs はカレントディレクトリ全体になるので捨てる
         values[key] = [x for x in v if x.strip()]
     post = {_tool_tail(t) for t in values["post_tools"]}

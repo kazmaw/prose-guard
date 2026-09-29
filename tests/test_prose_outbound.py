@@ -103,10 +103,17 @@ class TestConfigDefaults(HookCase):
         r = self.gh("gh pr comment 1 --body '%s'" % BAD)
         self.assertEqual(r.returncode, 2, r.stderr)
 
-    def test_no_config_skips_notes_and_mcp(self):
+    def test_no_config_skips_notes_but_checks_default_mcp(self):
         self.config_path.unlink()
         self.assertEqual(self.write_tool(self.notes / "memo.md", BAD).returncode, 0)
         r = self.mcp("mcp__claude_ai_Slack__slack_send_message", {"message": BAD})
+        self.assertEqual(r.returncode, 2, r.stderr)
+        r = self.mcp("mcp__claude_ai_ClickUp__clickup_create_task_comment", {"comment_text": BAD})
+        self.assertEqual(r.returncode, 2, r.stderr)
+
+    def test_no_config_skips_unlisted_mcp(self):
+        self.config_path.unlink()
+        r = self.mcp("mcp__claude_ai_ClickUp__clickup_get_task", {"task_id": BAD})
         self.assertEqual(r.returncode, 0, r.stderr)
 
     def test_broken_config_warns_and_keeps_defaults(self):

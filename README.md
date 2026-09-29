@@ -64,12 +64,15 @@ Cowork では、プラグインの hook は5種類とも動きます。
   - 届く前の回答や書き込みも、Stop と PostToolUse の検査は受けます。
 - **Mac の `~/.claude/prose-guard.json` は読まれない**
   - Cowork はサンドボックスの中で動くためです。
-  - 設定が要る検査（`watch_dirs` と `post_tools`）は効きません。
+  - `watch_dirs` の検査は効きません。
+  - MCP の投稿前チェックは、既定のツールだけで動きます。
 
 ## 設定しなくても効くもの
 
 - `*pr-body*.md` と `*pr_body*.md` への書き込みの検査
 - `gh pr`・`gh issue`・`gh api` で送る本文の、送信前の検査
+- Slack と ClickUp の主な投稿ツールで送る本文の、送信前の検査
+  - 対象のツールは、下の「既定で検査するツール」の表のとおりです。
 - チャット回答の検査
 - 文章ルールの注入と、承認サマリーのスキル
 
@@ -93,14 +96,16 @@ Cowork では、プラグインの hook は5種類とも動きます。
 | --- | --- |
 | `watch_dirs` | 配下の `.md` をすべて検査するディレクトリ。絶対パスか `~` 始まりで書きます |
 | `skip_globs` | 検査しないファイルの glob。絶対パスと照合し、`*` は `/` もまたぎます |
-| `post_tools` | 送信前に検査して止める MCP ツールの名前 |
-| `replacing_tools` | `post_tools` のうち、本文を丸ごと置き換えるもの |
+| `post_tools` | 送信前に検査して止める MCP ツールの名前。省くと下の表のツールすべてになります |
+| `replacing_tools` | `post_tools` のうち、本文を丸ごと置き換えるもの。省くと下の表の置き換えの列になります |
 
 - **`watch_dirs` の除外**
   - 配下のドット始まりのフォルダ（`.obsidian` や `.trash`）は検査しません。
 - **`post_tools` の書き方**
   - MCP ツール名の最後の `__` より後ろを書きます。
   - `mcp__claude_ai_Slack__slack_send_message` なら `slack_send_message` です。
+  - 書くと既定のツールと置き換わります。足したいときは、既定のツールも並べて書きます。
+  - `[]` と書くと、MCP の投稿前チェックを止められます。
 - **`replacing_tools` の効き方**
   - 会話の中で読み込んだ既存の行は、検査から外します。
   - 他の人が書いた文を理由に、差し戻さないためです。
@@ -109,14 +114,15 @@ Cowork では、プラグインの hook は5種類とも動きます。
 エントリがあるときは、stderr に警告を出して既定値で動きます。
 警告はセッション開始時にも表示します。
 
-ClickUp と Slack の主なツール名は次のとおりです。
+既定で検査するツールは次のとおりです。
+`post_tools` を自分で書くときの参考にもなります。
 
 | サービス | 投稿 | 本文の置き換え |
 | --- | --- | --- |
 | ClickUp | `clickup_create_task_comment`、`clickup_create_comment`、`clickup_send_chat_message`、`clickup_create_task`、`clickup_create_document`、`clickup_create_document_page` | `clickup_update_comment`、`clickup_update_task`、`clickup_update_document_page` |
 | Slack | `slack_send_message`、`slack_send_message_draft`、`slack_schedule_message` | なし |
 
-置き換えの列のツールは、`post_tools` と `replacing_tools` の両方に書きます。
+自分で書くときは、置き換えの列のツールを `post_tools` と `replacing_tools` の両方に書きます。
 
 ## 判定ルール
 
