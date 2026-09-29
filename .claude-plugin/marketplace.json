@@ -11,7 +11,7 @@
     {
       "name": "prose-guard",
       "description": "文章ルールの注入と、行やバレットの長さを判定するリンタ hook。",
-      "source": ".",
+      "source": "./",
       "category": "productivity"
     }
   ]

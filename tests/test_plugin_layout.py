@@ -52,7 +52,7 @@ class ManifestTest(unittest.TestCase):
     def test_marketplace_lists_repo_root(self):
         m = load_json(".claude-plugin/marketplace.json")
         self.assertEqual(m["name"], "prose-guard")
-        self.assertEqual([(p["name"], p["source"]) for p in m["plugins"]], [("prose-guard", ".")])
+        self.assertEqual([(p["name"], p["source"]) for p in m["plugins"]], [("prose-guard", "./")])
 
 
 class BundledProseTest(unittest.TestCase):
