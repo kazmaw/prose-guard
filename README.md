@@ -51,10 +51,20 @@ prose-guard（https://github.com/kazmaw/prose-guard）を入れてください�
 | --- | --- |
 | Claude Code（ターミナル、IDE 拡張） | すべて効きます |
 | Claude Desktop の Code タブ | すべて効きます。CLI と設定とプラグインを共有します |
-| Claude Desktop の Cowork | hook を読み込む仕様です。動作は未確認です |
+| Claude Desktop の Cowork | ほぼ効きます。制限は下に書きます |
 | claude.ai と Desktop の通常チャット | hook が動かないので、ルールの注入も検査も効きません |
 
 Desktop の Code タブは、`+` ボタンの「Plugins」からも入れられます。
+
+Cowork では、プラグインの hook は5種類とも動きます。
+ただし、次の2点が CLI と違います。
+
+- **起動直後はルールが届かないことがある**
+  - セッションを再開すると届きます。
+  - 届く前の回答や書き込みも、Stop と PostToolUse の検査は受けます。
+- **Mac の `~/.claude/prose-guard.json` は読まれない**
+  - Cowork はサンドボックスの中で動くためです。
+  - 設定が要る検査（`watch_dirs` と `post_tools`）は効きません。
 
 ## 設定しなくても効くもの
 
