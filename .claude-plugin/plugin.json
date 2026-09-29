@@ -1,6 +1,6 @@
 {
   "name": "prose-guard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Claude Code に読みやすい日本語を書かせる文章ガードレール。文章ルールの注入と、行やバレットの長さを判定するリンタ hook。",
   "author": {
     "name": "kazmaw"

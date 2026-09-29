@@ -47,7 +47,7 @@ class HooksJsonTest(unittest.TestCase):
 class ManifestTest(unittest.TestCase):
     def test_plugin_manifest(self):
         m = load_json(".claude-plugin/plugin.json")
-        self.assertEqual((m["name"], m["version"], m["license"]), ("prose-guard", "0.1.0", "MIT"))
+        self.assertEqual((m["name"], m["version"], m["license"]), ("prose-guard", "0.1.1", "MIT"))
 
     def test_marketplace_lists_repo_root(self):
         m = load_json(".claude-plugin/marketplace.json")
