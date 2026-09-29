@@ -19,6 +19,23 @@ Claude Code に、読みやすい日本語の文章を書かせるプラグイ�
 
 ## 入れ方
 
+Claude Code に次の文を貼ると、Python 3 の確認から導入まで進めます。
+
+```text
+prose-guard（https://github.com/kazmaw/prose-guard）を入れてください。
+
+1. `python3 --version` を実行して、Python 3 が動くか確かめてください。
+   動かなければ、入れ方を私に確認してから入れてください。
+   macOS なら `xcode-select --install` か `brew install python` です。
+2. 次の2つを実行してください。
+   - `claude plugin marketplace add kazmaw/prose-guard`
+   - `claude plugin install prose-guard@prose-guard`
+3. `claude plugin list` で、prose-guard が有効になったか確かめてください。
+4. 最後に、新しいセッションを始めるよう私に伝えてください。
+```
+
+自分で入れるときは、Claude Code の中で次を実行します。
+
 ```text
 /plugin marketplace add kazmaw/prose-guard
 /plugin install prose-guard@prose-guard
@@ -27,6 +44,17 @@ Claude Code に、読みやすい日本語の文章を書かせるプラグイ�
 入れたあとの新しいセッションから効きます。
 
 前提として Python 3 が要ります。外部ライブラリは使いません。
+
+## 使える場所
+
+| 場所 | 使えるか |
+| --- | --- |
+| Claude Code（ターミナル、IDE 拡張） | すべて効きます |
+| Claude Desktop の Code タブ | すべて効きます。CLI と設定とプラグインを共有します |
+| Claude Desktop の Cowork | hook を読み込む仕様です。動作は未確認です |
+| claude.ai と Desktop の通常チャット | hook が動かないので、ルールの注入も検査も効きません |
+
+Desktop の Code タブは、`+` ボタンの「Plugins」からも入れられます。
 
 ## 設定しなくても効くもの
 
