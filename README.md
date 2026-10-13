@@ -177,3 +177,5 @@ python3 -m unittest discover -s tests
 ## ライセンス
 
 MIT です。詳しくは `LICENSE` を見てください。
+
+言い回しのルールと書き直しの注意は、[nanaism/yomiyasu](https://github.com/nanaism/yomiyasu)（MIT）を元にしています。

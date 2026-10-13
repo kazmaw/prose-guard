@@ -81,6 +81,14 @@ CONFIG_DEFAULTS = {
 # 差し戻しの文面で示す判定基準の場所
 CRITERIA = " 判定基準は %s にある。\n" % (HERE / "prose_lint.py")
 
+# 書き直しで意味がずれないための注意。書き直すときだけ要るので、常時注入せず差し戻しに添える。
+KEEP_MEANING = (
+    "\n直しても、主張、比重、言い切りの強さ（断定か推量か）、文の働き（評価か説明か依頼か）は変えない。"
+    " 元に無い動作主、原因、条件、数値、例は足さない。"
+    " 意味を担う「AではなくB」は残す。"
+    " 文を割るときは「そのため」「一方で」などで前の文との関係を残し、目的が結論にかかる文は1文に保つ。"
+)
+
 # Bash 経路の控え。tool_use_id ごとに 1 ファイル。実行後に消す。
 SNAPSHOT_DIR = os.environ.get("PROSE_SNAPSHOT_DIR") or os.path.join(
     os.environ.get("CLAUDE_PLUGIN_DATA") or os.path.expanduser("~/.claude/prose-guard"),
@@ -410,6 +418,7 @@ def _block_post(texts, title, seen=""):
         "\n\n".join(reports)
         + "\n\nまだ送信していない。上の block を直した本文で、もう一度送ること。"
           " 情報は削らず、長い行と長いバレットを分割する。"
+        + KEEP_MEANING
         + CRITERIA
     )
     return 2
@@ -513,6 +522,7 @@ def handle_post_bash(payload):
         "\n\n".join(reports)
         + "\n\n上の block を直してから次に進むこと。"
           " 直すときは全文を書き直さず、該当箇所だけ触ること。"
+        + KEEP_MEANING
         + CRITERIA
     )
     return 2
@@ -584,6 +594,7 @@ def handle_post_tool_use(payload, cfg):
         report
         + "\n\n上の block を直してから次に進むこと。"
           " 直すときは全文を書き直さず Edit で該当箇所だけ触ること。"
+        + KEEP_MEANING
         + CRITERIA
     )
     return 2  # stderr が Claude にフィードバックされる
@@ -604,7 +615,7 @@ def handle_stop(payload):
     emit({
         "decision": "block",
         "reason": report + "\n\n同じ内容のまま、上の block だけ直して回答し直すこと。"
-                           " 情報は削らず、長い行と長いバレットを分割する。",
+                           " 情報は削らず、長い行と長いバレットを分割する。" + KEEP_MEANING,
     })
     return 0
 

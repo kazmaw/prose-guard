@@ -139,6 +139,7 @@ class TestConfigDefaults(HookCase):
         self.configure(post_tools=["mcp__claude_ai_Slack__slack_send_message"])
         r = self.mcp("mcp__claude_ai_Slack__slack_send_message", {"message": BAD})
         self.assertEqual(r.returncode, 2, r.stderr)
+        self.assertIn("言い切りの強さ", r.stderr)
 
 
 class TestStop(HookCase):
@@ -160,6 +161,10 @@ class TestStop(HookCase):
         r = self.stop(BAD * 2)
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(json.loads(r.stdout)["decision"], "block")
+
+    def test_send_back_tells_how_to_keep_meaning(self):
+        r = self.stop(BAD * 2)
+        self.assertIn("言い切りの強さ", json.loads(r.stdout)["reason"])
 
     def test_second_stop_in_turn_passes(self):
         r = self.stop(BAD * 2, active=True)
