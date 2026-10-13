@@ -518,34 +518,6 @@ def handle_post_bash(payload):
     return 2
 
 
-def last_assistant_text(transcript_path):
-    """transcript の末尾から、直近の assistant テキストを 1 件返す。"""
-    if not transcript_path or not os.path.exists(transcript_path):
-        return ""
-    rows = []
-    with open(transcript_path, encoding="utf-8", errors="ignore") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                rows.append(line)
-    for line in reversed(rows[-400:]):
-        try:
-            rec = json.loads(line)
-        except ValueError:
-            continue
-        if rec.get("type") != "assistant":
-            continue
-        msg = rec.get("message") or {}
-        if msg.get("role") != "assistant":
-            continue
-        chunks = [b.get("text") or "" for b in (msg.get("content") or [])
-                  if isinstance(b, dict) and b.get("type") == "text"]
-        text = "\n".join(c for c in chunks if c.strip())
-        if text.strip():
-            return text
-    return ""
-
-
 def _written_parts(tool, tool_input):
     """今回の書き込みで新しく入った本文だけを返す。
 
@@ -620,8 +592,10 @@ def handle_post_tool_use(payload, cfg):
 def handle_stop(payload):
     if payload.get("stop_hook_active"):
         return 0  # 書き直しは 1 ターン 1 回だけ
-    text = last_assistant_text(payload.get("transcript_path"))
-    if not text or len(text) < 200:
+    # transcript は読まない。Stop の時点では今回の回答がまだ書かれておらず、
+    # 末尾を読むと 1 つ前の回答を検査してしまう。
+    text = payload.get("last_assistant_message") or ""
+    if len(text) < 200:
         return 0
     issues = pl.lint(text)
     if pl.count(issues, "block") < CHAT_BLOCK_MIN:

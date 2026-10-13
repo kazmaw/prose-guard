@@ -143,12 +143,17 @@ class TestConfigDefaults(HookCase):
 
 class TestStop(HookCase):
     def stop(self, text, active=False):
+        # transcript の末尾には違反した 1 つ前の回答を置く。検査されるのは今回の回答だけ。
         t = self.tmp / "t.jsonl"
         rec = {"type": "assistant", "message": {"role": "assistant",
-                                                "content": [{"type": "text", "text": text}]}}
+                                                "content": [{"type": "text", "text": BAD * 2}]}}
         t.write_text(json.dumps(rec, ensure_ascii=False) + "\n", encoding="utf-8")
         return self.hook({"hook_event_name": "Stop", "transcript_path": str(t),
-                          "stop_hook_active": active})
+                          "last_assistant_message": text, "stop_hook_active": active})
+
+    def test_previous_answer_in_transcript_is_not_checked(self):
+        r = self.stop(GOOD * 20)
+        self.assertEqual((r.returncode, r.stdout), (0, ""))
 
     def test_bad_answer_is_sent_back_without_config(self):
         self.config_path.unlink()
