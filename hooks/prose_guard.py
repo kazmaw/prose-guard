@@ -616,8 +616,9 @@ def handle_stop(payload):
         "decision": "block",
         "reason": report + "\n\n同じ内容のまま、上の block だけ直して回答し直すこと。"
                            " 情報は削らず、長い行と長いバレットを分割する。"
-                           " 1 つ前の回答も画面に残るので、冒頭に「直したバージョンです」と 1 行入れる。"
                            + KEEP_MEANING,
+        # 差し戻した回答も画面に残る。目印はその回答の直下に出るので、読む先を示す
+        "systemMessage": "prose-guard が差し戻しました。書き直したバージョンが下に続きます",
     })
     return 0
 

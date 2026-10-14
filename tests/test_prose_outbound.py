@@ -166,9 +166,9 @@ class TestStop(HookCase):
         r = self.stop(BAD * 2)
         self.assertIn("言い切りの強さ", json.loads(r.stdout)["reason"])
 
-    def test_send_back_asks_to_mark_rewritten_answer(self):
+    def test_send_back_shows_marker_to_user(self):
         r = self.stop(BAD * 2)
-        self.assertIn("直したバージョンです", json.loads(r.stdout)["reason"])
+        self.assertIn("書き直したバージョンが下に続きます", json.loads(r.stdout)["systemMessage"])
 
     def test_second_stop_in_turn_passes(self):
         r = self.stop(BAD * 2, active=True)
