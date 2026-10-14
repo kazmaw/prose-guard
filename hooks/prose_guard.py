@@ -615,7 +615,9 @@ def handle_stop(payload):
     emit({
         "decision": "block",
         "reason": report + "\n\n同じ内容のまま、上の block だけ直して回答し直すこと。"
-                           " 情報は削らず、長い行と長いバレットを分割する。" + KEEP_MEANING,
+                           " 情報は削らず、長い行と長いバレットを分割する。"
+                           " 1 つ前の回答も画面に残るので、冒頭に「直したバージョンです」と 1 行入れる。"
+                           + KEEP_MEANING,
     })
     return 0
 
