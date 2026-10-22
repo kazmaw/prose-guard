@@ -32,6 +32,7 @@ THRESHOLDS = {
     "long_line_block": 140,
     "fat_bullet": 100,
     "bullet_sentences": 3,
+    "bullet_sentences_min_chars": 100,
     "paragraph_lines": 4,
 }
 
@@ -168,8 +169,9 @@ def _lint_bullet(lines, i, issues):
             issues.append(Issue(lineno, "fat_bullet", "block",
                                 "1 バレット %d 字" % len(plain), body[:45]))
 
+    # 短い文が並ぶだけのバレットは読める。100 字未満で差し戻した箇所は、手判定でも半数以上が誤検知だった
     n = len(_sentences(plain))
-    if n >= THRESHOLDS["bullet_sentences"]:
+    if n >= THRESHOLDS["bullet_sentences"] and len(plain) >= THRESHOLDS["bullet_sentences_min_chars"]:
         issues.append(Issue(lineno, "multi_sentence_bullet", "block",
                             "1 バレットに %d 文" % n, body[:45]))
 

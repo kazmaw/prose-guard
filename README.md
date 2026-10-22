@@ -131,7 +131,7 @@ Cowork では、プラグインの hook は5種類とも動きます。
 | `long_line` | 散文の1行が100字を超える | warn |
 | `long_line` | 散文の1行が140字を超える | block |
 | `fat_bullet` | 1つのバレットが100字を超える | block |
-| `multi_sentence_bullet` | 1つのバレットに3文以上ある | block |
+| `multi_sentence_bullet` | 100字以上のバレットに3文以上ある | block |
 | `arrow_reason` | バレットで `←` を使って理由をつなぐ | block |
 | `inline_labels` | `**ラベル**:` が1行に2つ以上ある | block |
 | `long_paragraph` | 散文が4行以上続く | warn |

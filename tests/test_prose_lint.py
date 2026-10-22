@@ -29,7 +29,10 @@ class DetectTest(unittest.TestCase):
         self.assertIn("fat_bullet", rules("- " + "あ" * 120))
 
     def test_multi_sentence_bullet(self):
-        self.assertIn("multi_sentence_bullet", rules("- 短い。短い。短い。"))
+        self.assertIn("multi_sentence_bullet", rules("- " + ("あ" * 30 + "。") * 4))
+
+    def test_short_sentences_in_short_bullet_allowed(self):
+        self.assertNotIn("multi_sentence_bullet", rules("- 短い。短い。短い。"))
 
     def test_two_sentences_allowed(self):
         self.assertNotIn("multi_sentence_bullet", rules("- 短い。短い。"))
