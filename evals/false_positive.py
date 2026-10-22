@@ -60,6 +60,8 @@ def send_backs(since):
                 except ValueError:
                     continue
                 m = r.get("message") or {}
+                if r.get("entrypoint") == "sdk-cli":
+                    continue  # claude -p の会話は、利用者が読む回答ではない
                 if r.get("type") == "assistant":
                     for c in m.get("content") or []:
                         if isinstance(c, dict) and c.get("type") == "text" and c["text"].strip():
@@ -75,9 +77,18 @@ def send_backs(since):
     return out
 
 
+def _span(lines, i):
+    """i 行目から、折り返しの継続行までをつなげて返す。バレットは複数行にまたがることがある。"""
+    j = i + 1
+    while j < len(lines) and lines[j].strip() and not pl.BULLET_RE.match(lines[j]) \
+            and not pl.HEADING_RE.match(lines[j]):
+        j += 1
+    return "\n".join(lines[i:j])
+
+
 def judge(orig, rewrite):
     lines = orig.split("\n")
-    flagged = [{"id": n, "rule": x.rule, "text": lines[x.line - 1]}
+    flagged = [{"id": n, "rule": x.rule, "text": _span(lines, x.line - 1)}
                for n, x in enumerate((x for x in pl.lint(orig) if x.severity == "block"), 1)]
     if not flagged:
         return []  # 判定ルールが変わり、今の規則では差し戻されない

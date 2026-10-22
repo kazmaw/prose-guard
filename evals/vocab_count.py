@@ -41,7 +41,8 @@ def texts(since):
                     r = json.loads(line)
                 except ValueError:
                     continue
-                if r.get("type") != "assistant" or not r.get("timestamp"):
+                # claude -p の会話（評価や週次レポート）は、ルールの語を引用するので数えない
+                if r.get("type") != "assistant" or not r.get("timestamp") or r.get("entrypoint") == "sdk-cli":
                     continue
                 day = datetime.date.fromisoformat(r["timestamp"][:10])
                 if day < since:
