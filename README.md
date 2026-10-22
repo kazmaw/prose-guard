@@ -182,6 +182,7 @@ python3 -m unittest discover -s tests
 ```sh
 python3 evals/rewrite_eval.py --candidate "新しい直し方の注意"
 python3 evals/vocab_count.py
+python3 evals/false_positive.py
 ```
 
 - **`rewrite_eval.py`**
@@ -193,6 +194,9 @@ python3 evals/vocab_count.py
   - 実際の差し戻しより崩れ方が大きいので、手元の実例があれば `--samples` で渡します。
 - **`vocab_count.py`**
   - 「AI 特有の言い回し」の語が、回答に週ごとにどれだけ出たかを数えます。
+- **`false_positive.py`**
+  - 直近の Stop の差し戻しを抜き出し、元のままで読めた箇所（誤検知）の割合を見積もります。
+  - 判定は Claude が行います。利用者の手判定とは、20件中17件で一致しました。
 
 ## バージョン
 
