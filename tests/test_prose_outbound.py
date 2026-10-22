@@ -162,6 +162,13 @@ class TestStop(HookCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(json.loads(r.stdout)["decision"], "block")
 
+    def test_one_line_with_two_blocks_passes(self):
+        # 長いバレット 1 つで fat_bullet と multi_sentence_bullet が両方出ても、1 行と数える
+        line = ("- " + "これは一つ目の文で、設定の読み込み順を説明しています。" * 2
+                + "二つ目の文では、例外の扱いについても触れています。三つ目の文で、最後に結論をまとめておきます。\n\n")
+        r = self.stop(line + GOOD * 6)
+        self.assertEqual((r.returncode, r.stdout), (0, ""))
+
     def test_send_back_tells_how_to_keep_meaning(self):
         r = self.stop(BAD * 2)
         self.assertIn("言い切りの強さ", json.loads(r.stdout)["reason"])

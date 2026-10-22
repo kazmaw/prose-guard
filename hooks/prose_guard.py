@@ -41,7 +41,9 @@ sys.path.insert(0, str(HERE))
 
 import prose_lint as pl  # noqa: E402
 
-# チャット回答を止める下限。1 件だと発火率 61% で往復が増えすぎる（実測）。
+# チャット回答を止める下限。block が出た行の数で数える。
+# 1 行だと発火率 61% で往復が増えすぎる（実測）。件数で数えると、長いバレット 1 つで
+# fat_bullet と multi_sentence_bullet が重なって止まり、その多くが誤検知だった（2026-10-22）。
 CHAT_BLOCK_MIN = 2
 
 # 設定が無くても検査する PR 本文のファイル。fnmatch の * は / もまたぐ。
@@ -609,7 +611,7 @@ def handle_stop(payload):
     if len(text) < 200:
         return 0
     issues = pl.lint(text)
-    if pl.count(issues, "block") < CHAT_BLOCK_MIN:
+    if len({x.line for x in issues if x.severity == "block"}) < CHAT_BLOCK_MIN:
         return 0
     report = pl.format_report(issues, "直前の回答", limit=8)
     emit({
