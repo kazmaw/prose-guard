@@ -614,12 +614,11 @@ def handle_stop(payload):
     report = pl.format_report(issues, "直前の回答", limit=8)
     emit({
         "decision": "block",
-        # reason は利用者にも表示されるので、KEEP_MEANING を縮めた文言にする。
-        # 実際の差し戻し 10 件で、書き直しの意味のずれが KEEP_MEANING 版と同等だった
+        # reason は利用者にも表示されるが、KEEP_MEANING は縮めない。
+        # 縮めた文言は evals/rewrite_eval.py で、元に無い内容を足すずれが増えた
         "reason": report + "\n\n同じ内容のまま、上の block だけ直して回答し直すこと。"
-                           "情報を削らず割るだけにし、言い切りの強さや文の働きは変えず、"
-                           "元に無い原因・条件・例は足さない。"
-                           "割った文は「そのため」などで前の文とつなぐ。",
+                           " 情報は削らず、長い行と長いバレットを分割する。"
+                           + KEEP_MEANING,
         # 差し戻した回答も画面に残る。目印はその回答の直下に出るので、読む先を示す
         "systemMessage": "prose-guard が差し戻しました。書き直したバージョンが下に続きます",
     })
